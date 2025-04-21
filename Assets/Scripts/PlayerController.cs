@@ -13,6 +13,23 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public LayerMask groundLayer;
 
+    private float originalSpeed;
+    private float boostTimer = 0f;
+    private bool isBoosted = false;
+
+    private float originalJumpForce;
+    private float jumpBoostTimer = 0f;
+    private bool isJumpBoosted = false;
+
+    private void Start()
+    {
+        originalSpeed = moveSpeed;
+
+      
+        originalJumpForce = jumpForce;
+    }
+
+
     private Rigidbody2D rb;
     public bool isGrounded;
 
@@ -21,8 +38,11 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+
+
     private void Update()
     {
+        // 이동 처리
         float moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
@@ -30,15 +50,39 @@ public class PlayerController : MonoBehaviour
             transform.localScale = new Vector3(-3f, 3f, 1f);
         if (moveInput > 0)
             transform.localScale = new Vector3(3f, 3f, 1f);
-        
 
+        // 바닥 체크
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
 
-        if(isGrounded && Input.GetKeyDown(KeyCode.Space))
+        // 점프 처리
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
-    
+
+        // 스피드 부스트 타이머
+        if (isBoosted)
+        {
+            boostTimer -= Time.deltaTime;
+            if (boostTimer <= 0f)
+            {
+                moveSpeed = originalSpeed;
+                isBoosted = false;
+                Debug.Log("스피드 부스트 종료!");
+            }
+        }
+
+        // 점프 강화 시간 체크
+        if (isJumpBoosted)
+        {
+            jumpBoostTimer -= Time.deltaTime;
+            if (jumpBoostTimer <= 0f)
+            {
+                jumpForce = originalJumpForce;
+                isJumpBoosted = false;
+                Debug.Log("점프력 강화 종료");
+            }
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -51,15 +95,32 @@ public class PlayerController : MonoBehaviour
         {
             collision.GetComponent<LevelObject>().MoveToNextLevel();
         }
+
+        if(collision.CompareTag("Enemy"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+    }
+    public void ActivateSpeedBoost(float amount, float duration)
+    {
+        moveSpeed = originalSpeed * amount;
+        boostTimer = duration;
+        isBoosted = true;
+        Debug.Log("스피드 부스트 시작!");
     }
 
-  
-    // Start is called before the first frame update
-    void Start()
+    public void ActivateJumpBoost(float multiplier, float duration)
     {
-        
+        jumpForce = originalJumpForce * multiplier;
+        jumpBoostTimer = duration;
+        isJumpBoosted = true;
+        Debug.Log("점프력 강화됨!");
     }
+
+
+    // Start is called before the first frame update
+
 
     // Update is called once per frame
-    
+
 }
