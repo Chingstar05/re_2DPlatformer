@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     public GameObject HelpPanel;
+
+    public GameObject leaderboardPanel;
     public void GameStartButtonAction()
     {
         SceneManager.LoadScene("Level_1");
@@ -23,6 +25,17 @@ public class UIManager : MonoBehaviour
     {
         HelpPanel.SetActive(false);
     }
+
+    public void OpenleaderboardPanel()
+    {
+        leaderboardPanel.SetActive(true);
+    }
+    public void CoseleaderboardPanel()
+    {
+        leaderboardPanel.SetActive(false );
+    }
+
+    
     // Start is called before the first frame update
     void Start()
     {

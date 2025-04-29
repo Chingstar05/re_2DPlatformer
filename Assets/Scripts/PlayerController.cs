@@ -1,10 +1,13 @@
+
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+
+
 
 public class PlayerController : MonoBehaviour
 {
@@ -21,6 +24,10 @@ public class PlayerController : MonoBehaviour
     private float jumpBoostTimer = 0f;
     private bool isJumpBoosted = false;
 
+    float score;
+
+    
+
     private void Start()
     {
         originalSpeed = moveSpeed;
@@ -36,6 +43,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        score = 1000f;
     }
 
 
@@ -60,6 +69,7 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
 
+        score  -= Time.deltaTime;
         // 스피드 부스트 타이머
         if (isBoosted)
         {
@@ -93,6 +103,8 @@ public class PlayerController : MonoBehaviour
 
         if(collision.CompareTag("Finish"))
         {
+            HighScore.TrySet(SceneManager.GetActiveScene().buildIndex, (int)score);
+
             collision.GetComponent<LevelObject>().MoveToNextLevel();
         }
 
@@ -116,6 +128,8 @@ public class PlayerController : MonoBehaviour
         isJumpBoosted = true;
         Debug.Log("점프력 강화됨!");
     }
+
+   
 
 
     // Start is called before the first frame update
